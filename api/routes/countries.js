@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 const Country = require("../models/countries");
 
-// GET /countries - Get the list of countries with pagination
+// GET /countries - Get the list of countries with pagination and sorting
 router.get("/", async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query; // Default page = 1, limit = 10
+    const { page = 1, limit = 10, sort = "a_to_z" } = req.query; // Default page = 1, limit = 10, sort = "a_to_z"
 
     // Convert query parameters to integers
     const pageNum = parseInt(page, 10);
@@ -14,10 +14,19 @@ router.get("/", async (req, res) => {
     // Calculate the starting index for pagination
     const startIndex = (pageNum - 1) * limitNum;
 
-    // Fetch data with pagination and total count
+    // Determine the sort order
+    let sortOrder = {};
+    if (sort === "z_to_a") {
+      sortOrder.name = -1; // Sort in descending order (Z to A)
+    } else {
+      sortOrder.name = 1; // Sort in ascending order (A to Z)
+    }
+
+    // Fetch data with pagination, sorting, and total count
     const countries = await Country.find()
       .skip(startIndex) // Skip to the starting index
-      .limit(limitNum); // Limit the number of records fetched
+      .limit(limitNum) // Limit the number of records fetched
+      .sort(sortOrder); // Sort countries based on the name field
 
     const totalCountries = await Country.countDocuments(); // Get the total count
 
@@ -34,6 +43,34 @@ router.get("/", async (req, res) => {
     console.error(err);
     res.status(500).json({
       message: "Failed to retrieve countries",
+      data: {},
+    });
+  }
+});
+
+// GET /countries/:id - Get details of a single country by country_id
+router.get("/:id", async (req, res) => {
+  try {
+    const countryId = req.params.id; // Extract country_id from the URL parameter
+
+    // Fetch country details by ID
+    const country = await Country.findById(countryId);
+
+    if (!country) {
+      return res.status(404).json({
+        message: "Country not found",
+        data: {},
+      });
+    }
+
+    res.status(200).json({
+      message: "Country details retrieved successfully",
+      data: country,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Failed to retrieve country details",
       data: {},
     });
   }
