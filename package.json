@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon -r dotenv/config server.js",
+    "dev": "NODE_ENV=development nodemon -r dotenv/config server.js",
+    "prod": "NODE_ENV=production nodemon -r dotenv/config server.js"
   },
   "keywords": [],
   "author": "",
@@ -13,5 +15,8 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "mongoose": "^8.8.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
   }
 }
