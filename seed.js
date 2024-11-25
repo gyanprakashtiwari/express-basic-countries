@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Country = require("./api/models/countries");
+const fs = require("fs");
 require("dotenv").config();
 
 const mongoURI = process.env.MONGO_DB_URI; // Get the MongoDB URI from environment variables
@@ -9,14 +10,10 @@ if (!mongoURI) {
   process.exit(1); // Exit the process if no URI is defined
 }
 
-// Dummy data for countries
-const countries = [
-  { id: 1, name: "United States", capital: "Washington, D.C." },
-  { id: 2, name: "Canada", capital: "Ottawa" },
-  { id: 3, name: "United Kingdom", capital: "London" },
-  { id: 4, name: "Australia", capital: "Canberra" },
-  { id: 5, name: "India", capital: "New Delhi" },
-];
+// Read the countries data from the JSON file
+const countries = JSON.parse(
+  fs.readFileSync("seed_data/countries.json", "utf-8")
+);
 
 // Seed function
 const seedData = async () => {

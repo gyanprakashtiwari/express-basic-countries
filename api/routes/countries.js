@@ -2,6 +2,15 @@ const express = require("express");
 const router = express.Router();
 const Country = require("../models/countries");
 
+// Helper function to handle BigInt conversion to strings
+const convertBigIntFields = (country) => {
+  return {
+    ...country.toObject(),
+    area: country.area.toString(), // Convert BigInt to string
+    population: country.population.toString(), // Convert BigInt to string
+  };
+};
+
 // GET /countries - Get the list of countries with pagination and sorting
 router.get("/", async (req, res) => {
   try {
@@ -36,7 +45,7 @@ router.get("/", async (req, res) => {
         total: totalCountries,
         page: pageNum,
         limit: limitNum,
-        countries,
+        countries: countries.map(convertBigIntFields), // Convert BigInt fields for each country
       },
     });
   } catch (err) {
@@ -65,7 +74,7 @@ router.get("/:id", async (req, res) => {
 
     res.status(200).json({
       message: "Country details retrieved successfully",
-      data: country,
+      data: convertBigIntFields(country), // Convert BigInt fields for this country
     });
   } catch (err) {
     console.error(err);
